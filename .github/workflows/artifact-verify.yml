@@ -1,0 +1,52 @@
+name: Verify Build Artifact Reuse
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  verify-artifact:
+    name: Download and verify CI artifact
+    runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Resolve commit SHA
+        id: sha
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "sha=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "sha=${{ github.event.workflow_run.head_sha }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download CI artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: site-dist-${{ steps.sha.outputs.sha }}
+          path: ./release-candidate
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Record artifact identity
+        run: |
+          printf '{"task":"T03","artifact":"site-dist-%s","commit":"%s"}' \
+            "${{ steps.sha.outputs.sha }}" "${{ steps.sha.outputs.sha }}" \
+            > release-candidate/artifact.json
+          cat release-candidate/artifact.json
+
+      - name: Upload verified artifact record
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact-verification-${{ steps.sha.outputs.sha }}
+          path: release-candidate/artifact.json
