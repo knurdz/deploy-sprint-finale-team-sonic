@@ -1,25 +1,31 @@
 name: CI
+
 # This workflow acts as the CI gate for deployment (T06). The deploy workflow
 # (deploy.yml) only triggers via `workflow_run` after this CI workflow
 # completes successfully on `main`, ensuring no deployment request is sent
 # for a commit that hasn't passed build/tests here.
+
 on:
   pull_request:
   push:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       # T12: npm dependency caching is enabled via setup-node's built-in cache
       # option, keyed on team-site/package-lock.json. This speeds up repeated
-      # installs while npm ci (below) still enforces a deterministic,
-      # lockfile-exact install — caching never bypasses lockfile integrity.
+      # installs while npm ci still enforces a deterministic, lockfile-exact
+      # installation.
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -28,17 +34,62 @@ jobs:
           cache-dependency-path: team-site/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
         working-directory: team-site
+        run: npm ci
 
       - name: Build
+        working-directory: team-site
         env:
           PUBLIC_URL: ${{ secrets.PUBLIC_URL }}
+          FEATURE_SHOW_INSIGHTS: ${{ secrets.FEATURE_SHOW_INSIGHTS }}
         run: npm run build
-        working-directory: team-site
+
+      - name: Verify redacted feature flag evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          FLAG_FILE="team-site/dist/runtime/feature-flags.json"
+
+          if [ ! -f "$FLAG_FILE" ]; then
+            echo "Feature flag manifest was not generated."
+            exit 1
+          fi
+
+          node - <<'NODE'
+          const fs = require('node:fs');
+
+          const file = 'team-site/dist/runtime/feature-flags.json';
+          const flags = JSON.parse(fs.readFileSync(file, 'utf8'));
+
+          if (flags.task !== 'T15') {
+            throw new Error('Missing T15 task marker.');
+          }
+
+          if (flags.feature !== 'showInsights') {
+            throw new Error('Unexpected feature flag name.');
+          }
+
+          if (typeof flags.enabled !== 'boolean') {
+            throw new Error('Feature enabled value must be Boolean.');
+          }
+
+          if (flags.valueRedacted !== true) {
+            throw new Error('Feature flag evidence is not marked as redacted.');
+          }
+
+          if (flags.source !== 'runtime-environment') {
+            throw new Error('Feature flag source marker is missing.');
+          }
+
+          console.log('Safe T15 feature flag evidence verified.');
+          console.log(`Feature configured: ${flags.configured}`);
+          console.log(`Feature enabled: ${flags.enabled}`);
+          NODE
 
       - name: Upload dist artifact
         uses: actions/upload-artifact@v4
         with:
           name: site-dist-${{ github.sha }}
           path: team-site/dist
+          if-no-files-found: error
