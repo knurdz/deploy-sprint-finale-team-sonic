@@ -18,6 +18,7 @@ import { FeatureInsights } from './components/FeatureInsights';
 import { LearningVelocity } from './components/LearningVelocity';
 import { StatCard } from './components/StatCard';
 import WeatherCard from './components/WeatherCard';
+import { ReleaseReadiness } from './components/ReleaseReadiness';
 import { courses } from './data/courses';
 import { deadlineCards } from './data/deadlines';
 import { sprintStats } from './data/stats';
@@ -140,10 +141,10 @@ export function App() {
 
           <DeadlineBoard deadlines={deadlineCards} />
         </section>
+        <ReleaseReadiness />
 
         <ContactForm />
         <EmailStatus />
-
       </section>
     </main>
   );
