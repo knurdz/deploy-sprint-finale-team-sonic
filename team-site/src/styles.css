@@ -451,3 +451,55 @@ h3 {
     white-space: normal;
   }
 }
+.insightsPanel {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  padding: 1.25rem;
+  border: 1px solid rgba(128, 128, 128, 0.25);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.insightsPanel h2,
+.insightsPanel p {
+  margin: 0;
+}
+
+.insightsPanel h2 {
+  margin-bottom: 0.4rem;
+}
+
+.insightsIcon {
+  display: grid;
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: 14px;
+  background: rgba(128, 128, 128, 0.18);
+}
+
+.featureFlagStatus {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(128, 128, 128, 0.25);
+  border-radius: 14px;
+  font-size: 0.9rem;
+}
+
+.featureFlagStatus span {
+  opacity: 0.75;
+}
+
+@media (max-width: 640px) {
+  .featureFlagStatus {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

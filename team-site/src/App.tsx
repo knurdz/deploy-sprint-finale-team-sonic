@@ -14,6 +14,7 @@ import EmailStatus from "./components/EmailStatus";
 import { ContactForm } from './components/ContactForm';
 import { CourseCard } from './components/CourseCard';
 import { DeadlineBoard } from './components/DeadlineBoard';
+import { FeatureInsights } from './components/FeatureInsights';
 import { LearningVelocity } from './components/LearningVelocity';
 import { StatCard } from './components/StatCard';
 import WeatherCard from './components/WeatherCard';
@@ -21,7 +22,6 @@ import { courses } from './data/courses';
 import { deadlineCards } from './data/deadlines';
 import { sprintStats } from './data/stats';
 import { getAverageProgress } from './utils/metrics';
-
 
 export function App() {
   const averageProgress = getAverageProgress(courses);
@@ -107,6 +107,8 @@ export function App() {
             <span>4 active learning tracks</span>
           </div>
         </section>
+
+        <FeatureInsights />
 
         <WeatherCard />
 
