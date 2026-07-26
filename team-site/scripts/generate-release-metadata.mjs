@@ -25,7 +25,7 @@ const publicUrl =
 
 const domainHost =
   process.env.ASSIGNED_DOMAIN ??
-  'sonic.deploysprint-finals.knurdz.org';
+  (process.env.PUBLIC_URL ? new URL(process.env.PUBLIC_URL).host : 'not-configured');
 
 const status = {
   team: 'Sonic',
