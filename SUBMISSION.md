@@ -64,3 +64,10 @@ Use this section for short public notes and links. Full task instructions and ch
 ## Public Notes
 
 List anything judges should know without exposing credentials or private infrastructure details.
+
+Verified:
+- DNS A record resolves correctly.
+- TXT verification record exists.
+- HTTP domain responds successfully.
+- Raw IP responds successfully.
+- Status manifest reports domain.connected=true.
