@@ -4,8 +4,8 @@ Complete this file on `main` as tasks are completed. Do not paste secrets, priva
 
 ## Team
 
-- Team name:
-- Team members:
+- Team name: sonic
+- Team members: 
 - Live IP URL:
 - Assigned domain URL:
 - Repository URL:
@@ -32,7 +32,7 @@ Use this section for short public notes and links. Full task instructions and ch
 | --- | --- | --- | --- |
 | T01 |  |  |  |
 | T02 |  |  |  |
-| T03 |  |  |  |
+| T03 | #2 | .github/workflows/artifact-verify.yml | Adds a workflow that downloads the exact CI-built site-dist-<sha> artifact (no rebuild) and records its identity in artifact.json. Verified end-to-end run pending post-merge since GitHub only runs workflows present on main. |
 | T04 |  |  |  |
 | T05 |  |  |  |
 | T06 |  |  |  |
