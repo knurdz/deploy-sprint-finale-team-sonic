@@ -33,11 +33,11 @@ Use this section for short public notes and links. Full task instructions and ch
 | T01 |  |  |  |
 | T02 |  |  |  |
 | T03 | #2 | .github/workflows/artifact-verify.yml | Adds a workflow that downloads the exact CI-built site-dist-<sha> artifact (no rebuild) and records its identity in artifact.json. Verified end-to-end run pending post-merge since GitHub only runs workflows present on main. |
-| T04 | #6 | GitHub Actions rollback workflow completed successfully | Added manual rollback workflow with workflow_dispatch and release_ref input. Verified successful rollback execution and workflow summary. |
+| T04 | #4 | GitHub Actions rollback workflow completed successfully | Added manual rollback workflow with workflow_dispatch and release_ref input. Verified successful rollback execution and workflow summary. |
 | T05 |  |  |  |
-| T06 |  |  |  |
+| T06 | #6 | .github/workflows/ci.yml | Documents that ci.yml already satisfies the CI-gate requirements (Node 20, npm ci, npm run build, artifact upload) and that deploy.yml only triggers after CI succeeds via workflow_run. |
 | T07 |  |  |  |
-| T08 |  |  |  |
+| T08 | #8 | task-assets/rebase-feature rebased onto main | Fetched organizer branch task-assets/rebase-feature, rebased cleanly onto main with git rebase main (no conflicts, no force-push). Brings in LearningVelocity component + wiring + styles. |
 | T09 |  |  |  |
 | T10 |  |  |  |
 | T11 |  |  |  |
