@@ -1,0 +1,23 @@
+name: Resend Email Alert
+
+on:
+  workflow_dispatch:
+
+jobs:
+  resend-status:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verify Resend configuration
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          echo "provider=resend"
+          if [ -n "$RESEND_API_KEY" ]; then
+            echo "configured=true"
+          else
+            echo "configured=false"
+            exit 1
+          fi
+          echo "secretRedacted=true"
+          echo "Dry-run completed. API key is configured but not exposed."
