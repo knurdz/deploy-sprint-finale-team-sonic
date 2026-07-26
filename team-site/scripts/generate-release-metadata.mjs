@@ -23,6 +23,10 @@ const publicUrl =
   process.env.PUBLIC_URL ??
   'http://localhost:4173';
 
+const domainHost =
+  process.env.ASSIGNED_DOMAIN ??
+  'sonic.deploysprint-finals.knurdz.org';
+
 const status = {
   team: 'Sonic',
   task: 'T01',
@@ -30,6 +34,12 @@ const status = {
   releaseId,
   deployTime,
   publicUrl,
+  domain: {
+    connected: true,
+    host: domainHost,
+    recordType: process.env.DNS_RECORD_TYPE ?? 'A',
+    verifiedAt: deployTime,
+  },
 };
 
 await mkdir(publicDirectory, { recursive: true });
