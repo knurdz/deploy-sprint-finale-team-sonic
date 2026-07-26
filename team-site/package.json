@@ -4,14 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-  "dev": "vite",
-  "generate:metadata": "node scripts/generate-release-metadata.mjs",
-"generate:runtime": "node scripts/generate-runtime-config.mjs",
-"prebuild": "npm run generate:metadata && npm run generate:runtime",
-"build": "tsc --noEmit && vite build",
-  "preview": "vite preview",
-  "lint": "tsc --noEmit"
-},
+    "dev": "vite",
+    "generate:metadata": "node scripts/generate-release-metadata.mjs",
+    "generate:runtime": "node scripts/generate-runtime-config.mjs",
+    "generate:feature-flags": "node scripts/generate-feature-flags.mjs",
+    "prebuild": "npm run generate:metadata && npm run generate:runtime",
+    "build": "tsc --noEmit && vite build && npm run generate:feature-flags",
+    "preview": "vite preview",
+    "lint": "tsc --noEmit"
+  },
   "dependencies": {
     "lucide-react": "^1.23.0",
     "react": "^19.2.7",
