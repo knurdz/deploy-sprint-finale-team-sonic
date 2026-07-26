@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   Users,
 } from 'lucide-react';
+import EmailStatus from "./components/EmailStatus";
 import { ContactForm } from './components/ContactForm';
 import { CourseCard } from './components/CourseCard';
 import { DeadlineBoard } from './components/DeadlineBoard';
@@ -141,6 +142,7 @@ export function App() {
         </section>
 
         <ContactForm />
+        <EmailStatus />
 
       </section>
     </main>
