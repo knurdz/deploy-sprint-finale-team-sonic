@@ -33,7 +33,56 @@ jobs:
 
       - name: Build preview
         working-directory: team-site
+        env:
+          FEATURE_SHOW_INSIGHTS: ${{ secrets.FEATURE_SHOW_INSIGHTS }}
         run: npm run build
+
+      - name: Verify T15 feature flag manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          FLAG_FILE="team-site/dist/runtime/feature-flags.json"
+
+          if [ ! -f "$FLAG_FILE" ]; then
+            echo "Feature flag manifest was not generated."
+            exit 1
+          fi
+
+          node - <<'NODE'
+          const fs = require('node:fs');
+
+          const file = 'team-site/dist/runtime/feature-flags.json';
+          const flags = JSON.parse(fs.readFileSync(file, 'utf8'));
+
+          if (flags.task !== 'T15') {
+            throw new Error('Missing T15 task marker.');
+          }
+
+          if (flags.feature !== 'showInsights') {
+            throw new Error('Unexpected feature name.');
+          }
+
+          if (typeof flags.enabled !== 'boolean') {
+            throw new Error('Enabled value must be Boolean.');
+          }
+
+          if (typeof flags.configured !== 'boolean') {
+            throw new Error('Configured value must be Boolean.');
+          }
+
+          if (flags.valueRedacted !== true) {
+            throw new Error('Feature flag evidence is not redacted.');
+          }
+
+          if (flags.source !== 'runtime-environment') {
+            throw new Error('Runtime environment source marker is missing.');
+          }
+
+          console.log('T15 feature flag manifest verified safely.');
+          console.log(`Configured: ${flags.configured}`);
+          console.log(`Enabled: ${flags.enabled}`);
+          NODE
 
       - name: Create preview manifest
         shell: bash
@@ -49,7 +98,8 @@ jobs:
             "branch": "${{ github.event.pull_request.head.ref }}",
             "repository": "${{ github.repository }}",
             "generatedBy": "PR Preview workflow",
-            "productionDeployment": false
+            "productionDeployment": false,
+            "featureFlagEvidence": "runtime/feature-flags.json"
           }
           EOF
 
@@ -74,5 +124,12 @@ jobs:
             echo "- Preview artifact uploaded"
             echo "- Production deployment: not modified"
             echo ""
-            echo "The uploaded artifact contains the built team-site/dist output and preview-manifest.json for this exact PR commit."
+            echo "## T15 Feature Flag Evidence"
+            echo ""
+            echo "- Feature: \`showInsights\`"
+            echo "- Source: GitHub Secret \`FEATURE_SHOW_INSIGHTS\`"
+            echo "- Public evidence: \`runtime/feature-flags.json\`"
+            echo "- Secret value: redacted"
+            echo ""
+            echo "The uploaded artifact contains the built team-site/dist output, preview-manifest.json, and safe redacted T15 feature flag evidence for this exact PR commit."
           } >> "$GITHUB_STEP_SUMMARY"
