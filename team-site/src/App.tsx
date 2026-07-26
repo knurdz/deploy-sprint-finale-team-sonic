@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { CourseCard } from './components/CourseCard';
 import { DeadlineBoard } from './components/DeadlineBoard';
+import { LearningVelocity } from './components/LearningVelocity';
 import { StatCard } from './components/StatCard';
 import { courses } from './data/courses';
 import { deadlineCards } from './data/deadlines';
@@ -29,7 +30,7 @@ export function App() {
           </div>
           <div>
             <strong>Deploy Sprint</strong>
-            <span>Team Sonic · Virtual LMS</span>
+            <span>Virtual LMS</span>
           </div>
         </div>
 
@@ -61,7 +62,7 @@ export function App() {
       <section className="workspace">
         <header className="topbar">
           <div>
-            <p className="eyebrow">Team Sonic · Qualifier Dashboard</p>
+            <p className="eyebrow">Qualifier Dashboard</p>
             <h1>Learning operations at a glance</h1>
           </div>
 
@@ -95,6 +96,8 @@ export function App() {
             <StatCard key={stat.label} stat={stat} />
           ))}
         </section>
+
+        <LearningVelocity courses={courses} />
 
         <section className="contentGrid">
           <div className="panel" id="courses">
