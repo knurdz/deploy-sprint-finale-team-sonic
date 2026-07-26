@@ -39,7 +39,18 @@ Use this section for short public notes and links. Full task instructions and ch
 | T07 |  |  |  |
 | T08 | #8 | task-assets/rebase-feature rebased onto main | Fetched organizer branch task-assets/rebase-feature, rebased cleanly onto main with git rebase main (no conflicts, no force-push). Brings in LearningVelocity component + wiring + styles. |
 | T09 |  |  |  |
-| T10 |  |  |  |
+## Verification (T10)
+
+- Added a Web3Forms-based contact/support form to the application.
+- Created and configured the `WEB3FORMS_ACCESS_KEY` GitHub Secret. The access key is not committed to the repository.
+- Added provider configuration evidence showing Web3Forms is configured without exposing the secret value.
+- Verified the project builds successfully using:
+
+```bash
+cd team-site
+npm ci
+npm run lint|
+npm run build |
 | T11 |  |  |  |
 | T12 | #12 | .github/workflows/ci.yml | Documents that ci.yml already satisfies T12: npm caching via setup-node keyed on team-site/package-lock.json, with npm ci preserved for deterministic installs. |
 | T13 |  |  |  |

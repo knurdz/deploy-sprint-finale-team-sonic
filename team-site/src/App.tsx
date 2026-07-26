@@ -5,12 +5,15 @@ import {
   CalendarCheck,
   GitBranch,
   GraduationCap,
+  Mail,
   Search,
   ShieldCheck,
   Users,
 } from 'lucide-react';
+import { ContactForm } from './components/ContactForm';
 import { CourseCard } from './components/CourseCard';
 import { DeadlineBoard } from './components/DeadlineBoard';
+import { FeatureInsights } from './components/FeatureInsights';
 import { LearningVelocity } from './components/LearningVelocity';
 import { StatCard } from './components/StatCard';
 import WeatherCard from './components/WeatherCard';
@@ -19,7 +22,6 @@ import { courses } from './data/courses';
 import { deadlineCards } from './data/deadlines';
 import { sprintStats } from './data/stats';
 import { getAverageProgress } from './utils/metrics';
-
 
 export function App() {
   const averageProgress = getAverageProgress(courses);
@@ -58,6 +60,10 @@ export function App() {
             <Users size={18} />
             Teams
           </a>
+          <a href="#contact">
+  <Mail size={18} />
+  Contact
+</a>
         </nav>
 
         <div className="sidebarPanel">
@@ -102,6 +108,8 @@ export function App() {
           </div>
         </section>
 
+        <FeatureInsights />
+
         <WeatherCard />
 
         <section className="statGrid" aria-label="Sprint statistics">
@@ -132,7 +140,9 @@ export function App() {
 
           <DeadlineBoard deadlines={deadlineCards} />
         </section>
-        <ReleaseReadiness />
+<ReleaseReadiness />
+
+        <ContactForm /> main
       </section>
     </main>
   );
