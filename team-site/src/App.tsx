@@ -29,7 +29,7 @@ export function App() {
           </div>
           <div>
             <strong>Deploy Sprint</strong>
-            <span>Virtual LMS</span>
+            <span>Team Sonic · Virtual LMS</span>
           </div>
         </div>
 
@@ -61,7 +61,7 @@ export function App() {
       <section className="workspace">
         <header className="topbar">
           <div>
-            <p className="eyebrow">Qualifier Dashboard</p>
+            <p className="eyebrow">Team Sonic · Qualifier Dashboard</p>
             <h1>Learning operations at a glance</h1>
           </div>
 
