@@ -41,7 +41,7 @@ Use this section for short public notes and links. Full task instructions and ch
 | T09 |  |  |  |
 | T10 |  |  |  |
 | T11 |  |  |  |
-| T12 |  |  |  |
+| T12 | #12 | .github/workflows/ci.yml | Documents that ci.yml already satisfies T12: npm caching via setup-node keyed on team-site/package-lock.json, with npm ci preserved for deterministic installs. |
 | T13 |  |  |  |
 | T14 |  |  |  |
 | T15 |  |  |  |
