@@ -1,0 +1,56 @@
+name: Verify Build Artifact Reuse
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      ci_run_id:
+        description: "CI run ID to verify (required for manual trigger)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  verify-artifact:
+    name: Download and verify CI artifact
+    runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Resolve commit SHA and CI run ID
+        id: resolve
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "sha=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+            echo "ci_run_id=${{ inputs.ci_run_id }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "sha=${{ github.event.workflow_run.head_sha }}" >> "$GITHUB_OUTPUT"
+            echo "ci_run_id=${{ github.event.workflow_run.id }}" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Download CI artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: site-dist-${{ steps.resolve.outputs.sha }}
+          path: ./release-candidate
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ steps.resolve.outputs.ci_run_id }}
+      - name: Record artifact identity
+        run: |
+          printf '{"task":"T03","artifact":"site-dist-%s","commit":"%s","ci_run_id":"%s"}' \
+            "${{ steps.resolve.outputs.sha }}" "${{ steps.resolve.outputs.sha }}" "${{ steps.resolve.outputs.ci_run_id }}" \
+            > release-candidate/artifact.json
+          cat release-candidate/artifact.json
+      - name: Upload verified artifact record
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact-verification-${{ steps.resolve.outputs.sha }}
+          path: release-candidate/artifact.json
