@@ -62,6 +62,19 @@ jobs:
             echo "source_run_id=$source_run_id"
           } >> "$GITHUB_OUTPUT"
 
+      - name: Verify OpenWeather secret configuration
+        env:
+          OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${OPENWEATHER_API_KEY:-}" ]; then
+            echo "OPENWEATHER_API_KEY is not configured."
+            exit 1
+          fi
+
+          echo "OpenWeather API integration is configured."
+
       - name: Request deploy from organizer deployer
         env:
           DEPLOYER_DISPATCH_TOKEN: ${{ secrets.DEPLOYER_DISPATCH_TOKEN }}
