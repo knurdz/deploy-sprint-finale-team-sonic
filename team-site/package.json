@@ -7,10 +7,9 @@
     "dev": "vite",
     "generate:metadata": "node scripts/generate-release-metadata.mjs",
     "generate:runtime": "node scripts/generate-runtime-config.mjs",
-    "generate:flags": "node scripts/generate-feature-flags.mjs",
-    "predev": "npm run generate:flags",
-    "prebuild": "npm run generate:metadata && npm run generate:runtime && npm run generate:flags",
-    "build": "tsc --noEmit && vite build",
+    "generate:feature-flags": "node scripts/generate-feature-flags.mjs",
+    "prebuild": "npm run generate:metadata && npm run generate:runtime",
+    "build": "tsc --noEmit && vite build && npm run generate:feature-flags",
     "preview": "vite preview",
     "lint": "tsc --noEmit"
   },

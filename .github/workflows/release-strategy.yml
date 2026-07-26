@@ -1,0 +1,39 @@
+name: Low Downtime Release Strategy
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        working-directory: team-site
+        run: npm ci
+
+      - name: Build candidate release
+        working-directory: team-site
+        run: npm run build
+
+      - name: Deploy candidate and health check
+        env:
+          HEALTH_URL: ${{ secrets.HEALTH_URL }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          chmod +x scripts/deploy-blue-green.sh
+          ./scripts/deploy-blue-green.sh
