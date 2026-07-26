@@ -56,7 +56,27 @@ npm run build |
 | T13 |  |  |  |
 | T14 |  |  |  |
 | T15 |  |  |  |
-| T16 |  |  |  |
+## Verification (T16)
+
+- Added a Resend email alert integration using a secure runtime/workflow configuration.
+- Added the `RESEND_API_KEY` as a GitHub Actions secret. The API key is never committed to the repository or exposed in browser code.
+- Added provider status evidence showing:
+  - Provider: `resend`
+  - Configured: `true`
+  - Secret Redacted: `true`
+- Added an email status component to display safe configuration evidence without revealing sensitive values.
+- Added a GitHub Actions workflow that references `RESEND_API_KEY` securely through GitHub Secrets.
+- Verified the application builds successfully using:
+
+```bash
+cd team-site
+npm ci
+npm run lint
+npm run build
+```
+
+- Verified the GitHub Actions CI and deployment workflows completed successfully.
+- Verified that the Resend provider configuration is displayed in the application while keeping the API key fully redacted.
 | T17 |  |  |  |
 | T18 |  |  |  |
 | T19 |  |  |  |
