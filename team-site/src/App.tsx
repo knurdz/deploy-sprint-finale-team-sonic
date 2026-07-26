@@ -19,6 +19,7 @@ import { deadlineCards } from './data/deadlines';
 import { sprintStats } from './data/stats';
 import { getAverageProgress } from './utils/metrics';
 
+
 export function App() {
   const averageProgress = getAverageProgress(courses);
 
