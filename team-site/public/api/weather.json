@@ -1,0 +1,11 @@
+{
+  "provider": "openweather",
+  "configured": false,
+  "city": "Colombo",
+  "country": "LK",
+  "temperature": 29,
+  "feelsLike": 32,
+  "humidity": 75,
+  "description": "weather preview",
+  "updatedAt": "2026-07-26T04:30:00.000Z"
+}
