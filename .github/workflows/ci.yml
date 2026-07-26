@@ -1,5 +1,8 @@
 name: CI
-
+# This workflow acts as the CI gate for deployment (T06). The deploy workflow
+# (deploy.yml) only triggers via `workflow_run` after this CI workflow
+# completes successfully on `main`, ensuring no deployment request is sent
+# for a commit that hasn't passed build/tests here.
 on:
   pull_request:
   push:
