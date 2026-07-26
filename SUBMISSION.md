@@ -33,7 +33,7 @@ Use this section for short public notes and links. Full task instructions and ch
 | T01 |  |  |  |
 | T02 |  |  |  |
 | T03 | #2 | .github/workflows/artifact-verify.yml | Adds a workflow that downloads the exact CI-built site-dist-<sha> artifact (no rebuild) and records its identity in artifact.json. Verified end-to-end run pending post-merge since GitHub only runs workflows present on main. |
-| T04 |  |  |  |
+| T04 | #6 | GitHub Actions rollback workflow completed successfully | Added manual rollback workflow with workflow_dispatch and release_ref input. Verified successful rollback execution and workflow summary. |
 | T05 |  |  |  |
 | T06 |  |  |  |
 | T07 |  |  |  |
