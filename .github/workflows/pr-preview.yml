@@ -1,0 +1,78 @@
+name: PR Preview
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    name: Build PR preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout PR commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: team-site/package-lock.json
+
+      - name: Install dependencies
+        working-directory: team-site
+        run: npm ci
+
+      - name: Build preview
+        working-directory: team-site
+        run: npm run build
+
+      - name: Create preview manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cat > team-site/dist/preview-manifest.json <<EOF
+          {
+            "task": "T11",
+            "type": "pull-request-preview",
+            "pullRequest": ${{ github.event.pull_request.number }},
+            "commit": "${{ github.event.pull_request.head.sha }}",
+            "branch": "${{ github.event.pull_request.head.ref }}",
+            "repository": "${{ github.repository }}",
+            "generatedBy": "PR Preview workflow",
+            "productionDeployment": false
+          }
+          EOF
+
+      - name: Upload preview artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-${{ github.event.pull_request.number }}-preview-${{ github.event.pull_request.head.sha }}
+          path: team-site/dist
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Publish preview summary
+        shell: bash
+        run: |
+          {
+            echo "## T11 PR Preview Evidence"
+            echo ""
+            echo "- Pull request: #${{ github.event.pull_request.number }}"
+            echo "- Branch: \`${{ github.event.pull_request.head.ref }}\`"
+            echo "- Commit: \`${{ github.event.pull_request.head.sha }}\`"
+            echo "- Build result: successful"
+            echo "- Preview artifact uploaded"
+            echo "- Production deployment: not modified"
+            echo ""
+            echo "The uploaded artifact contains the built team-site/dist output and preview-manifest.json for this exact PR commit."
+          } >> "$GITHUB_STEP_SUMMARY"
