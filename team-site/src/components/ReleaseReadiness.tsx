@@ -1,6 +1,5 @@
 import { releaseReadinessItems } from '../data/releaseReadiness';
 
-// AI-REVIEW-MARKER:T11 remove after reviewing generated/copy-pasted code.
 export function ReleaseReadiness() {
   return (
     <section className="panel" id="release-readiness">
