@@ -1,0 +1,207 @@
+name: Rollback Known-Good Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_ref:
+        description: Known-good tag, full SHA, or short SHA
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: rollback-production
+  cancel-in-progress: false
+
+jobs:
+  rollback:
+    name: Resolve and redeploy known-good release
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve rollback target
+        id: target
+        env:
+          RELEASE_REF: ${{ inputs.release_ref }}
+        run: |
+          set -euo pipefail
+
+          echo "T04 rollback requested"
+          echo "Requested release_ref: ${RELEASE_REF}"
+
+          if [ -z "${RELEASE_REF}" ]; then
+            echo "release_ref must not be empty."
+            exit 1
+          fi
+
+          git fetch --force --tags origin
+
+          target_sha="$(git rev-parse "${RELEASE_REF}^{commit}")"
+
+          if ! git merge-base --is-ancestor "${target_sha}" origin/main; then
+            echo "Rollback target must be part of the main branch history."
+            exit 1
+          fi
+
+          echo "Resolved rollback target: release_ref=${RELEASE_REF} target_sha=${target_sha}"
+
+          {
+            echo "release_ref=${RELEASE_REF}"
+            echo "target_sha=${target_sha}"
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo "## T04 rollback validation"
+            echo ""
+            echo "- Requested release: \`${RELEASE_REF}\`"
+            echo "- Resolved commit: \`${target_sha}\`"
+            echo "- Main-history validation: passed"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Find successful CI artifact
+        id: artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_SHA: ${{ steps.target.outputs.target_sha }}
+        run: |
+          set -euo pipefail
+
+          runs_json="$(
+            curl --fail-with-body --show-error --silent \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?branch=main&status=success&head_sha=${TARGET_SHA}&per_page=100"
+          )"
+
+          source_run_id="$(
+            RUNS_JSON="${runs_json}" python3 - <<'PY'
+          import json
+          import os
+
+          data = json.loads(os.environ["RUNS_JSON"])
+          runs = data.get("workflow_runs", [])
+
+          if runs:
+              print(runs[0]["id"])
+          PY
+          )"
+
+          if [ -z "${source_run_id}" ]; then
+            echo "No successful CI run was found for ${TARGET_SHA}."
+            exit 1
+          fi
+
+          expected_artifact="site-dist-${TARGET_SHA}"
+
+          artifacts_json="$(
+            curl --fail-with-body --show-error --silent \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/actions/runs/${source_run_id}/artifacts"
+          )"
+
+          artifact_found="$(
+            ARTIFACTS_JSON="${artifacts_json}" EXPECTED_ARTIFACT="${expected_artifact}" python3 - <<'PY'
+          import json
+          import os
+
+          data = json.loads(os.environ["ARTIFACTS_JSON"])
+          expected = os.environ["EXPECTED_ARTIFACT"]
+
+          matching = [
+              artifact
+              for artifact in data.get("artifacts", [])
+              if artifact.get("name") == expected and not artifact.get("expired", False)
+          ]
+
+          if matching:
+              print("true")
+          PY
+          )"
+
+          if [ "${artifact_found}" != "true" ]; then
+            echo "Expected non-expired artifact was not found: ${expected_artifact}"
+            exit 1
+          fi
+
+          echo "Selected known-good release: sha=${TARGET_SHA} source_run_id=${source_run_id} artifact=${expected_artifact}"
+
+          {
+            echo "source_run_id=${source_run_id}"
+            echo "artifact_name=${expected_artifact}"
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo "- Source CI run: \`${source_run_id}\`"
+            echo "- Selected artifact: \`${expected_artifact}\`"
+            echo "- Artifact validation: passed"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Request organizer rollback deployment
+        env:
+          DEPLOYER_DISPATCH_TOKEN: ${{ secrets.DEPLOYER_DISPATCH_TOKEN }}
+          DEPLOYER_REPO: knurdz/deploy-sprint-deployer
+          TEAM_REPO: ${{ github.repository }}
+          TARGET_SHA: ${{ steps.target.outputs.target_sha }}
+          RELEASE_REF: ${{ steps.target.outputs.release_ref }}
+          SOURCE_RUN_ID: ${{ steps.artifact.outputs.source_run_id }}
+          ARTIFACT_NAME: ${{ steps.artifact.outputs.artifact_name }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${DEPLOYER_DISPATCH_TOKEN}" ]; then
+            echo "DEPLOYER_DISPATCH_TOKEN is not configured."
+            exit 1
+          fi
+
+          python3 - <<'PY' > payload.json
+          import json
+          import os
+
+          payload = {
+              "event_type": "team-sonic-main-merged",
+              "client_payload": {
+                  "team": "sonic",
+                  "repo": os.environ["TEAM_REPO"],
+                  "sha": os.environ["TARGET_SHA"],
+                  "branch": "main",
+                  "source_run_id": os.environ["SOURCE_RUN_ID"],
+                  "release_ref": os.environ["RELEASE_REF"],
+                  "rollback": True,
+              },
+          }
+
+          print(json.dumps(payload))
+          PY
+
+          curl --fail-with-body --show-error --silent \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${DEPLOYER_DISPATCH_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${DEPLOYER_REPO}/dispatches" \
+            --data @payload.json
+
+          echo "Rollback deploy requested: release_ref=${RELEASE_REF} sha=${TARGET_SHA} artifact=${ARTIFACT_NAME}"
+
+          {
+            echo ""
+            echo "## Rollback request"
+            echo ""
+            echo "- Result: organizer deploy request accepted"
+            echo "- Release reference: \`${RELEASE_REF}\`"
+            echo "- Target commit: \`${TARGET_SHA}\`"
+            echo "- Artifact: \`${ARTIFACT_NAME}\`"
+            echo "- Decisive log line: \`Rollback deploy requested\`"
+          } >> "$GITHUB_STEP_SUMMARY"
