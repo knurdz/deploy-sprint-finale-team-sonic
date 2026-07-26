@@ -6,8 +6,9 @@
   "scripts": {
   "dev": "vite",
   "generate:metadata": "node scripts/generate-release-metadata.mjs",
-  "prebuild": "npm run generate:metadata",
-  "build": "tsc --noEmit && vite build",
+"generate:runtime": "node scripts/generate-runtime-config.mjs",
+"prebuild": "npm run generate:metadata && npm run generate:runtime",
+"build": "tsc --noEmit && vite build",
   "preview": "vite preview",
   "lint": "tsc --noEmit"
 },
