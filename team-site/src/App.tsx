@@ -13,6 +13,7 @@ import { CourseCard } from './components/CourseCard';
 import { DeadlineBoard } from './components/DeadlineBoard';
 import { LearningVelocity } from './components/LearningVelocity';
 import { StatCard } from './components/StatCard';
+import WeatherCard from './components/WeatherCard';
 import { courses } from './data/courses';
 import { deadlineCards } from './data/deadlines';
 import { sprintStats } from './data/stats';
@@ -28,6 +29,7 @@ export function App() {
           <div className="brandMark" aria-hidden="true">
             <GraduationCap size={24} />
           </div>
+
           <div>
             <strong>Deploy Sprint</strong>
             <span>Virtual LMS</span>
@@ -39,14 +41,17 @@ export function App() {
             <Activity size={18} />
             Overview
           </a>
+
           <a href="#courses">
             <BookOpen size={18} />
             Courses
           </a>
+
           <a href="#deadlines">
             <CalendarCheck size={18} />
             Deadlines
           </a>
+
           <a href="#teams">
             <Users size={18} />
             Teams
@@ -68,7 +73,10 @@ export function App() {
 
           <label className="searchBox">
             <Search size={18} />
-            <input aria-label="Search courses" placeholder="Search courses" />
+            <input
+              aria-label="Search courses"
+              placeholder="Search courses"
+            />
           </label>
 
           <button className="iconButton" aria-label="Notifications">
@@ -85,11 +93,14 @@ export function App() {
               before publishing a release.
             </p>
           </div>
+
           <div className="heroSignal">
             <GitBranch size={32} />
             <span>4 active learning tracks</span>
           </div>
         </section>
+
+        <WeatherCard />
 
         <section className="statGrid" aria-label="Sprint statistics">
           {sprintStats.map((stat) => (
@@ -106,6 +117,7 @@ export function App() {
                 <p className="eyebrow">Courses</p>
                 <h2>Current modules</h2>
               </div>
+
               <span>{courses.length} modules</span>
             </div>
 
