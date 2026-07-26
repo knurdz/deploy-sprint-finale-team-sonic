@@ -5,10 +5,12 @@ import {
   CalendarCheck,
   GitBranch,
   GraduationCap,
+  Mail,
   Search,
   ShieldCheck,
   Users,
 } from 'lucide-react';
+import { ContactForm } from './components/ContactForm';
 import { CourseCard } from './components/CourseCard';
 import { DeadlineBoard } from './components/DeadlineBoard';
 import { LearningVelocity } from './components/LearningVelocity';
@@ -56,6 +58,10 @@ export function App() {
             <Users size={18} />
             Teams
           </a>
+          <a href="#contact">
+  <Mail size={18} />
+  Contact
+</a>
         </nav>
 
         <div className="sidebarPanel">
@@ -130,6 +136,9 @@ export function App() {
 
           <DeadlineBoard deadlines={deadlineCards} />
         </section>
+
+        <ContactForm />
+
       </section>
     </main>
   );
