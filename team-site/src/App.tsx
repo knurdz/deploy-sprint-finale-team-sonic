@@ -140,9 +140,9 @@ export function App() {
 
           <DeadlineBoard deadlines={deadlineCards} />
         </section>
-<ReleaseReadiness />
+        <ReleaseReadiness />
 
-        <ContactForm /> main
+        <ContactForm />
       </section>
     </main>
   );
